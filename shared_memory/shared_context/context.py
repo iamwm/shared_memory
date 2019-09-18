@@ -29,8 +29,7 @@ class SharedContext(object):
             print(str(e))
 
     async def try_to_unlock(self):
-        lua_script = f"if redis.call('get', KEYS[1]) == ARGV[1] then " \
-            f"return redis.call('del', KEYS[1]) else return 0 end"
+        lua_script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end"
         try:
             unlock_result = await self.redis_conn.eval(lua_script, [self.lock_name], [self.expire_time])
             if not unlock_result:

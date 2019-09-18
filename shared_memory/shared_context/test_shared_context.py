@@ -14,7 +14,7 @@ async def try_to_lock(seq):
     lock_key = 'redis_lock'
     print('seq:{}'.format(seq))
     async with SharedContext(redis_conn, lock_key):
-        await asyncio.sleep(randint(1, 8))
+        await asyncio.sleep(randint(1, 3))
 
     print('complete')
 
