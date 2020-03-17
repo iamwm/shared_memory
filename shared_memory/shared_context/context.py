@@ -18,13 +18,18 @@ class SharedContext(object):
                 now = time()
                 self.expire_time = now + self.timeout + 1
                 timeout_duration = self.timeout + 1
-                # 此处setnx和setex应该放到一起，避免出现死锁。可以通过lua script完成
                 lock_result = await self.redis_conn.setnx(self.lock_name, self.expire_time)
                 if lock_result:
                     await self.redis_conn.setex(self.lock_name, timeout_duration, self.expire_time)
                     break
+                # 如果尝试加锁失败，判断当前锁值是否超过当前时间，如果超过则直接去设置锁
+                lock_value = await self.redis_conn.get(self.lock_name)
+                if not lock_value or float(lock_value) < now:
+                    print('lock timeout')
+                    await self.redis_conn.setex(self.lock_name, timeout_duration, self.expire_time)
+                    break
                 await asyncio.sleep(0.01)
-                # print('lock was token by others')
+                print('lock was token by others')
         except Exception as e:
             print(str(e))
 

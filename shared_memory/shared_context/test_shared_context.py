@@ -10,7 +10,7 @@ from context import SharedContext
 
 
 async def try_to_lock(seq):
-    redis_conn = await aioredis.create_redis_pool('redis://localhost:6379')
+    redis_conn = await aioredis.create_redis_pool('redis://192.168.50.93:6379')
     lock_key = 'redis_lock'
     print('seq:{}'.format(seq))
     async with SharedContext(redis_conn, lock_key):
